@@ -19,7 +19,7 @@ SW3 is a Layer 2 switch in the enterprise network topology. It provides access c
 
 ## 2. Complete Configuration
 
-The following configuration is based on the actual `show running-config` output. Passwords and cryptographic keys have been redacted.
+The following configuration is based on the actual `show running-config` output.
 
 ```cisco
 !
@@ -387,16 +387,3 @@ Port Security is enabled on all four access ports.
 - Syslog sent to Fedora at `10.10.20.50`.
 - Syslog source interface: VLAN 99.
 - NTP synchronization with R1 at `1.1.1.1`, using authentication key 1.
-
-## 8. Notes
-
-- SW3 is configured as a Layer 2 switch (`no ip routing`).
-- VLAN 999 is used as the native VLAN on configured trunk links.
-- VLANs 10, 20, 30 and 99 are explicitly allowed on trunks.
-- Three access ports are assigned to VLAN 30.
-- One access port is assigned to VLAN 10.
-- All eight unused interfaces are administratively disabled.
-- No explicit STP priority is configured in the supplied running configuration.
-- Credentials and cryptographic keys have been redacted from this public documentation.
-
-**Important:** This document reflects the configuration supplied through `show running-config`. 
