@@ -13,7 +13,7 @@ The lab is built using the following platforms:
 - GNS3: Network topology design, emulation, and testing of Cisco routers and switches.
 - VMware Workstation: Virtualization platform used to run the lab environment and virtual machines.
 - Fedora Linux: Server operating system hosting centralized network services.
-- OPNsense: Firewall platform used for network security, traffic filtering, and external connectivity.
+- OPNsense: perimeter firewall (rules and policies configured; WAN/NAT not testable in the isolated lab)
 
 ## Network Features
 
@@ -87,7 +87,6 @@ Provides centralized network services:
 - DHCP
 - DNS
 - NFS
-- NAS
 - Syslog
 - FAIL2BAN
 
@@ -123,6 +122,42 @@ Multiple security mechanisms are implemented to protect the infrastructure again
 - **Fail2ban:** Monitors SSH authentication failures and temporarily blocks suspicious IP addresses.
 - **Service Hardening:** Disables unnecessary services to reduce the attack surface.
 
+## Security Policy
+
+Traffic control is split in two layers:
+
+- **East-west (between VLANs)** – extended ACLs on R1 and R3:
+  - Guests (VLAN 30): DHCP, DNS to the Fedora server only, internet access.
+    No access to internal networks or router loopbacks.
+  - Users (VLAN 10): DHCP, DNS, NTP, NFS and SMB towards Fedora only,
+    no management access, internet access.
+- **North-south (towards outside)** – OPNsense perimeter firewall rules.
+
+Fedora is managed only through SSH; The ACLs do not expose SSH or other management ports to users or guests.
+
+### Dynamic ARP Inspection and statically addressed hosts
+
+Dynamic ARP Inspection (DAI) validates ARP packets against the DHCP snooping
+binding table. In this lab the client PCs (VPCS) and the Fedora server use
+static IP addresses, so they never obtain a DHCP lease and do not appear in
+that table. Without extra configuration, DAI would drop their ARP packets and
+they would lose connectivity.
+
+Two solutions were used:
+
+- **VPCS clients:** static entries were added to the DHCP snooping binding
+  table on the access switch of each PC.
+  Example:
+  `ip dhcp snooping binding 0050.7966.6802 vlan 10 10.10.10.3 interface gi1/2 expiry 4294967295`
+- **Fedora server:** an ARP ACL on SW1(`SERVER_STATICI`) maps the server IP
+  (10.10.20.50) to its MAC address and is applied to VLAN 20 with
+  `ip arp inspection filter`.
+
+Inter-switch trunks and router-facing ports are configured as trusted for DAI,
+while access ports stay untrusted. Static bindings are not stored in the
+running configuration, so they are listed in `configs/` and must be re-applied
+if the switches are reloaded without a snooping database.
+
 ## Fedora Network Services
 
 The Fedora server (`10.10.20.50`) provides centralized network services for the lab.
@@ -139,6 +174,7 @@ DHCP address pools are configured for the following VLANs:
 
 DHCP Relay is configured on R1 and R3 to forward client requests to the centralized DHCP server.
 
+
 ### DNS – BIND
 
 - **Internal domain:** `azienda.local`
@@ -146,6 +182,22 @@ DHCP Relay is configured on R1 and R3 to forward client requests to the centrali
 - **Forwarders:** `1.1.1.1`, `8.8.8.8`
 
 BIND provides forward and reverse DNS resolution for internal hosts.
+
+The zone contains the following records:
+
+| Name | Address | Notes |
+|---|---|---|
+| `ns1.azienda.local` | 10.10.20.50 | Fedora server (real host) |
+| `dc.azienda.local` | 10.10.20.60 | Example record |
+| `server.azienda.local` | 10.10.20.70 | Example record |
+| `nas.azienda.local` | 10.10.20.80 | Example record |
+
+The records `dc`, `server`, `nas` are examples used to test
+name resolution: no hosts with those names exist in the lab.
+
+The DNS domain `azienda.local` is used for the Linux services only. The Cisco
+devices use a different domain (`homelab`), configured with `ip domain-name`
+for SSH key generation, and it is not related to the DNS zone.
 
 ### NFS – Network File Sharing
 
@@ -202,14 +254,20 @@ Router and switch configurations are maintained separately to simplify configura
 
 ## Project Status
 
-<badge color="success">Implemented</badge> Core routing, switching, and network services configuration.
-
-<badge color="success">Implemented</badge> Fedora DHCP, DNS, Syslog, SSH, and Fail2ban configuration.
-
-<badge color="success">Implemented</badge> OPNsense integration and network firewall configuration.
-
-<badge color="warning">In progress</badge> NFS client connectivity and access permission testing.
-
-<badge color="warning">In progress</badge> NFSv4-only configuration verification.
+- ✅ Core routing, switching and network services
+- ✅ Fedora services: DHCP, DNS, Syslog, SSH, Fail2ban
+- ✅ OPNsense rules and policies configured
+- 🔄 NFS client mount and permission tests (pending)
+- 🔄 NFSv4-only verification (pending)
 
 The network is currently under development. Additional configurations, topology diagrams, technical documentation, and connectivity/security validation tests will be added as the project evolves.
+
+## Known Limitations
+
+- The OPNsense WAN has no address, so NAT and internet access
+  through the firewall are configured but not testable.
+- The firewall is perimetral only: inter-VLAN traffic is routed by R1/R3
+  and filtered by ACLs, it does not cross the firewall.
+- Guest-to-guest traffic inside VLAN 30 is not filtered.
+- Lab credentials and keys (enable secret, admin user, OSPF/NTP keys)
+  are lab-only values, not meant for production.
