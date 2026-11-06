@@ -94,13 +94,13 @@ Provides centralized network services:
   
 ### Routing and Switching Architecture
 
--R1 and R3 provide inter-VLAN routing through Router-on-a-Stick.
--HSRP provides default gateway redundancy, with R1 configured as the primary router and R3 as the standby router.
--OSPF Area 0 provides dynamic routing between R1, R2, and R3.
--R2 connects the internal routing infrastructure to OPNsense.
--R2 advertises the default route through OSPF.
--EtherChannel provides aggregated links between switches.
--Rapid PVST+ provides Layer 2 loop prevention.
+- R1 and R3 provide inter-VLAN routing through Router-on-a-Stick.
+- HSRP provides default gateway redundancy, with R1 configured as the primary router and R3 as the standby router.
+- OSPF Area 0 provides dynamic routing between R1, R2, and R3.
+- R2 connects the internal routing infrastructure to OPNsense.
+- R2 advertises the default route through OSPF.
+- EtherChannel provides aggregated links between switches.
+- Rapid PVST+ provides Layer 2 loop prevention.
 
 ## Redundancy and High Availability
 
