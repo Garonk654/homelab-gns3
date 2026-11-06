@@ -1,5 +1,9 @@
 # Enterprise Homelab Network
 
+## Network Topology
+
+![Network Topology](images/topology.png)
+
 A multi-layer enterprise network lab designed to simulate a small corporate infrastructure. This project focuses on implementing enterprise networking technologies, network segmentation, redundancy, dynamic routing, and security mechanisms using Cisco routers and switches.
 
 ## Project Overview
