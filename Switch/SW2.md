@@ -8,7 +8,7 @@
 | IOS Version            | 15.2           |
 | Management VLAN        | VLAN 99        |
 | Management IP          | 10.10.99.20/24 |
-| Default Gateway        | 10.10.99.254   |
+| Default Gateway        | 10.10.99.254 (HSRP address of R1/R3) |
 | Spanning Tree          | Rapid PVST+    |
 | STP Role               | Secondary Switch |
 | EtherChannel           | LACP           |
@@ -16,13 +16,13 @@
 | Dynamic ARP Inspection | Enabled        |
 | Port Security          | Enabled        |
 
-SW2 is a Layer 2 switch in the enterprise network topology. It provides access connectivity through VLAN 10 and VLAN 30, and trunk connectivity through two LACP EtherChannels.
+SW2 is a Layer 2 access switch of the topology. It provides access connectivity for VLAN 10 (users) and VLAN 30 (guests), and trunk connectivity through two LACP EtherChannels: one towards SW1 and one towards SW3.
 
-It is configured with a higher STP priority than SW1, giving SW1 preference in the Root Bridge election for the configured VLANs.
+Its STP priority value (28672) is higher than the one of SW1 (24576). A higher value means a lower priority, so SW1 wins the root bridge election and SW2 becomes the root only if SW1 fails.
 
 ## 2. Complete Configuration
 
-The following configuration is based on the actual `show running-config` output. Passwords and cryptographic keys have been redacted.
+The following configuration is based on the actual `show running-config` output.
 
 ```cisco
 !
@@ -328,7 +328,7 @@ end
 | VLANs                | 10, 20, 30, 99         |
 | Native VLAN          | 999                    |
 | Spanning Tree        | Rapid PVST+            |
-| STP Priority         | 28672                  |
+| STP Priority         | 28672 (secondary root bridge)|
 | EtherChannel         | LACP                   |
 | DHCP Protection      | DHCP Snooping          |
 | ARP Protection       | Dynamic ARP Inspection |
@@ -371,13 +371,15 @@ DHCP Snooping trust and Dynamic ARP Inspection trust are configured on both Port
 - Enabled globally.
 - Active on VLANs 10, 20, 30 and 99.
 - DHCP Option 82 insertion disabled.
-- EtherChannel member interfaces configured as trusted.
+- Trusted ports: Port-channel 1 and Port-channel 2, and the member interfaces `Gi0/0`, `Gi0/1` and `Gi0/2`. Both uplinks are trusted because, if spanning tree blocks the link towards SW1, DHCP replies from the Fedora server can reach SW2 through SW3.
+- The access ports are untrusted.
 
 **Dynamic ARP Inspection**
 
 - Enabled on VLANs 10, 20, 30 and 99.
 - Source MAC, destination MAC and IP validation enabled.
-- Port-channels and their physical member interfaces configured as trusted.
+- Trusted ports: both port-channels and their member interfaces. ARP packets arriving on the trunks were already inspected where they entered the network.
+- The access ports are untrusted.
 
 **Port Security**
 
@@ -386,6 +388,7 @@ Port Security is enabled on all four access ports.
 - Sticky MAC learning is configured.
 - The currently learned MAC addresses are explicitly present in the configuration.
 - Violation mode is set to `restrict`.
+- Each port allows a single MAC address (the default maximum).
 - PortFast Edge and BPDU Guard are enabled on access ports.
 
 ## 7. Management and Monitoring
@@ -397,3 +400,4 @@ Port Security is enabled on all four access ports.
 - Syslog sent to Fedora at `10.10.20.50`.
 - Syslog source interface: VLAN 99.
 - NTP synchronization with R1 at `1.1.1.1`, using authentication key 1.
+- `exec-timeout 0 0` on the VTY lines is a lab-only setting.
