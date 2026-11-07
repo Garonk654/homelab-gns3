@@ -279,7 +279,7 @@ The network is currently under development. Additional configurations, topology 
 
 - The OPNsense WAN has no address, so NAT and internet access
   through the firewall are configured but not testable.
-- The firewall is perimetral only: inter-VLAN traffic is routed by R1/R3
+- The firewall is perimeter-only: inter-VLAN traffic is routed by R1/R3
   and filtered by ACLs, it does not cross the firewall.
 - Guest-to-guest traffic inside VLAN 30 is not filtered.
 - If R1 fails, R3 keeps routing between the VLANs but loses its path to R2 and the firewall.
