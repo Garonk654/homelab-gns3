@@ -9,10 +9,10 @@
 | Hostname | fedora |
 | LAB Interface | ens224 |
 | LAB IP Address | 10.10.20.50/24 |
+| Lab gateway | 10.10.20.254 (HSRP address of R1/R3) |
 | LAB VLAN | VLAN 20 - SERVERS |
 | NAT Interface | ens160 |
 | NAT IP Address | 192.168.8.131 |
-| Lab gateway | 10.10.20.254 (HSRP address of R1/R3) |
 
 ## 2. Network Configuration
 
