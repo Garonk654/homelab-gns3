@@ -309,6 +309,12 @@ line vty 0 4
  login local
  transport input ssh
 !
+! ==============================
+! BANNER
+! ==============================
+!
+banner motd ^C SOLO ACCESSO AUTORIZZATO ^C
+!
 end
 ```
 
