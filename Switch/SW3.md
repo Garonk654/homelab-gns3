@@ -8,14 +8,16 @@
 | IOS Version            | 15.2           |
 | Management VLAN        | VLAN 99        |
 | Management IP          | 10.10.99.30/24 |
-| Default Gateway        | 10.10.99.254   |
+| Default Gateway        | 10.10.99.254 (HSRP address of R1/R3) |
 | Spanning Tree          | Rapid PVST+    |
 | EtherChannel           | LACP           |
 | DHCP Snooping          | Enabled        |
 | Dynamic ARP Inspection | Enabled        |
 | Port Security          | Enabled        |
 
-SW3 is a Layer 2 switch in the enterprise network topology. It provides access connectivity through VLAN 10 and VLAN 30, and trunk connectivity through two LACP EtherChannels.
+SW3 is a Layer 2 access switch of the topology. It provides access connectivity for VLAN 10 (users) and VLAN 30 (guests), and trunk connectivity through two LACP EtherChannels: one towards SW1 and one towards SW2.
+
+No STP priority is configured on SW3, so it keeps the default value. SW1 is the root bridge and SW2 is the secondary root bridge, so SW3 never becomes the root while they are available.
 
 ## 2. Complete Configuration
 
@@ -331,7 +333,7 @@ end
 
 SW3 uses Rapid PVST+ for Layer 2 loop prevention.
 
-The running configuration does not explicitly define an STP priority for SW3. Therefore, the default priority applies to the configured VLANs unless modified elsewhere.
+The running configuration does not define an STP priority for SW3, so the default priority (32768) applies to all VLANs. SW1 (24576) and SW2 (28672) have lower values, so they are preferred in the root bridge election.
 
 Additional protections:
 
@@ -360,19 +362,22 @@ DHCP Snooping trust and Dynamic ARP Inspection trust are configured on both Port
 - Enabled globally.
 - Active on VLANs 10, 20, 30 and 99.
 - DHCP Option 82 insertion disabled.
-- EtherChannel member interfaces configured as trusted.
+- Trusted ports: Port-channel 1 and Port-channel 2, and all their member interfaces. Both uplinks are trusted because, if spanning tree blocks the link towards SW1, DHCP replies from the Fedora server can reach SW3 through SW2.
+- The access ports are untrusted.
 
 **Dynamic ARP Inspection**
 
 - Enabled on VLANs 10, 20, 30 and 99.
 - Source MAC, destination MAC and IP validation enabled.
-- Port-channels and their physical member interfaces configured as trusted.
+- Trusted ports: both port-channels and their member interfaces. ARP packets arriving on the trunks were already inspected where they entered the network.
+- The access ports are untrusted.
 
 **Port Security**
 
 Port Security is enabled on all four access ports.
 
 - Sticky MAC learning is configured.
+- Each port allows a single MAC address (the default maximum).
 - Explicit sticky MAC addresses are present on Gi1/0 and Gi1/3.
 - Gi1/1 and Gi1/2 use sticky learning without an explicitly displayed MAC address.
 - Violation mode is set to `restrict`.
@@ -387,3 +392,4 @@ Port Security is enabled on all four access ports.
 - Syslog sent to Fedora at `10.10.20.50`.
 - Syslog source interface: VLAN 99.
 - NTP synchronization with R1 at `1.1.1.1`, using authentication key 1.
+- `exec-timeout 0 0` on the VTY lines is a lab-only setting.
