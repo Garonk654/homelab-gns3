@@ -161,7 +161,7 @@ Two solutions were used:
 
 Inter-switch trunks and router-facing ports are configured as trusted for DAI,
 while access ports stay untrusted. Static bindings are not stored in the
-running configuration, so they are listed in `configs/` and must be re-applied
+running configuration, ...so they are listed in the switch documentation (`Switch/`) and must be re-applied
 if the switches are reloaded without a snooping database.
 
 ## Fedora Network Services
@@ -254,9 +254,16 @@ Fail2ban monitors authentication failures and temporarily bans IP addresses that
 
 ## Repository Structure
 
-The repository is organized into separate directories containing device configurations, network documentation, and technology-specific implementations.
+The repository is organized by device type. Each device has its own
+documentation file, and the images are stored next to the document that uses them.
 
-Router and switch configurations are maintained separately to simplify configuration management and troubleshooting.
+| Folder | Content |
+|---|---|
+| [`Routers/`](Routers) | Configuration of [R1](Routers/R1.md), [R2](Routers/R2.md) and [R3](Routers/R3.md) |
+| [`Switch/`](Switch) | Configuration of [SW1](Switch/SW1.md), [SW2](Switch/SW2.md) and [SW3](Switch/SW3.md) |
+| [`Firewall/`](Firewall) | [OPNsense documentation](Firewall/Firewall.md) with screenshots of aliases, interfaces, rules and logging |
+| [`Server/`](Server) | [Fedora server](Server/Fedora.md): DHCP, DNS, syslog, NFS, SSH and Fail2ban |
+| [`images/`](images) | Topology diagram and virtual machines overview |
 
 ## Project Status
 
