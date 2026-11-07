@@ -282,5 +282,7 @@ The network is currently under development. Additional configurations, topology 
 - The firewall is perimetral only: inter-VLAN traffic is routed by R1/R3
   and filtered by ACLs, it does not cross the firewall.
 - Guest-to-guest traffic inside VLAN 30 is not filtered.
+- If R1 fails, R3 keeps routing between the VLANs but loses its path to R2 and the firewall.
 - Lab credentials and keys (enable secret, admin user, OSPF/NTP keys)
   are lab-only values, not meant for production.
+  
