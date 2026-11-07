@@ -19,6 +19,8 @@ The lab is built using the following platforms:
 - Fedora Linux: Server operating system hosting centralized network services.
 - OPNsense: perimeter firewall (rules and policies configured; WAN/NAT not testable in the isolated lab)
 
+![VM](images/VM.png)
+
 ## Network Features
 
 ### Switching
