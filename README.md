@@ -139,7 +139,7 @@ Traffic control is split in two layers:
     no management access, internet access.
 - **North-south (towards outside)** – OPNsense perimeter firewall rules.
 
-Fedora is managed only through SSH; The ACLs do not expose SSH or other management ports to users or guests.
+Fedora is managed only through SSH; The ACLs on R1 and R3 do not expose SSH or other management ports of the Fedora server to users or guests.
 
 ### Dynamic ARP Inspection and statically addressed hosts
 
