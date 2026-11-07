@@ -8,14 +8,14 @@
 | IOS Version | 15.2 |
 | Management VLAN | VLAN 99 |
 | Management IP | 10.10.99.10/24 |
-| Default Gateway | 10.10.99.254 |
+| Default Gateway | 10.10.99.254 (HSRP address of R1/R3) |
 | Spanning Tree | Rapid PVST+ |
 | STP Role | Root Bridge |
 | EtherChannel | LACP |
 | DHCP Snooping | Enabled |
 | Dynamic ARP Inspection | Enabled |
 
-SW1 is the primary Layer 2 switch in the topology. It acts as the STP root bridge for the configured VLANs and provides Layer 2 connectivity through trunk links and EtherChannel.
+SW1 is the primary Layer 2 switch of the topology. It connects the two gateway routers (R1 and R3), the Fedora server and the other two switches (SW2 and SW3), and it is the STP root bridge for the configured VLANs.
 
 ## 2. Complete Configuration
 
@@ -193,6 +193,7 @@ interface GigabitEthernet1/3
 interface GigabitEthernet2/0
  switchport access vlan 20
  switchport mode access
+ switchport nonegotiate
  negotiation auto
 !
 ! ==============================
@@ -201,7 +202,6 @@ interface GigabitEthernet2/0
 !
 interface GigabitEthernet1/2
  description PORTA INUTILIZZATA
- switchport trunk native vlan 999
  shutdown
  negotiation auto
 !
@@ -349,7 +349,7 @@ Both Port-channels operate as 802.1Q trunks, carrying VLANs 10, 20, 30 and 99, w
 - Enabled globally.
 - Active on VLANs 10, 20, 30 and 99.
 - DHCP Option 82 insertion disabled.
-- Trusted interfaces configured on selected uplinks and server-facing ports.
+- Trusted ports: Gi0/0 (R1, DHCP relay), Gi1/1 (R3, standby gateway) and Gi1/3 (Fedora, the DHCP server). All other ports are untrusted.
 
 **Dynamic ARP Inspection**
 
@@ -357,6 +357,7 @@ Both Port-channels operate as 802.1Q trunks, carrying VLANs 10, 20, 30 and 99, w
 - Source MAC, destination MAC and IP validation enabled.
 - Static ARP ACL `SERVER_STATICI` applied to VLAN 20.
 - Static binding configured for Fedora server `10.10.20.50`, MAC `000c.29c8.b613`.
+- Trusted ports: Gi0/0, Gi1/1 and both port-channels. 
 
 ## 7. Management and Monitoring
 
@@ -367,3 +368,4 @@ Both Port-channels operate as 802.1Q trunks, carrying VLANs 10, 20, 30 and 99, w
 - Syslog sent to Fedora at `10.10.20.50`.
 - Syslog source interface: VLAN 99.
 - NTP synchronization with R1 at `1.1.1.1`, using authentication key 1.
+- `exec-timeout 0 0` on the VTY lines is a lab-only setting.
