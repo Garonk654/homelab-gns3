@@ -12,7 +12,7 @@
 | Lab Gateway | 10.10.20.254 (HSRP address of R1/R3) |
 | LAB VLAN | VLAN 20 - SERVERS |
 | NAT Interface | ens160 |
-| NAT IP Address | 192.168.8.131 |
+| NAT IP Address | assigned by DHCP |
 
 ## 2. Network Configuration
 
@@ -20,12 +20,12 @@ The server uses two network interfaces.
 
 | Interface | IP Address | Purpose |
 |---|---|---|
-| ens160 | 192.168.8.131 | 	Internet access through the VMware NAT |
+| ens160 | assigned by DHCP | Internet access through the VMware NAT |
 | ens224 | 10.10.20.50/24 | Lab network, connected to VLAN 20 (SERVERS) |
 
 ### Routing
 
-- Internet traffic leaves through `ens160` and the NAT gateway `192.168.8.2`.
+- Internet traffic leaves through `ens160`.
 - Traffic to the lab networks (`10.10.0.0/16`) leaves through `ens224`, using a static route with next hop `10.10.20.254`.
 
 The static route is needed because, without it, the routing table sends lab traffic out through the NAT interface.
