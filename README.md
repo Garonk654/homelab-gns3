@@ -161,7 +161,7 @@ Two solutions were used:
 
 Inter-switch trunks and router-facing ports are configured as trusted for DAI,
 while access ports stay untrusted. Static bindings are not stored in the
-running configuration, ...so they are listed in the switch documentation (`Switch/`) and must be re-applied
+running configuration and must be re-applied
 if the switches are reloaded without a snooping database.
 
 ## Fedora Network Services
