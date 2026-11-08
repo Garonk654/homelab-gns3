@@ -119,6 +119,16 @@ The web interface is reachable through the OPT1 interface.
 | Management interface | `em2` |
 | Access method | HTTPS |
 
+### Routing
+
+OPNsense has one static route for the internal networks:
+
+| Destination | Gateway | Purpose |
+|---|---|---|
+| `10.10.0.0/16` | R2 (10.10.250.2) | Return traffic to the lab VLANs and syslog to the Fedora server |
+
+This is not the default gateway: the default route stays on the WAN.
+
 ## 8. Logging
 
 The firewall sends its logs to the Fedora server so that they are stored together with the logs of routers and switches.
